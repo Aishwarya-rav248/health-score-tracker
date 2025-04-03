@@ -31,6 +31,8 @@ def show_login_page():
             st.error("Invalid Patient ID")
 
 
+st.write("Columns in your CSV:", df.columns.tolist())
+
 # ----------- DASHBOARD PAGE -----------
 def show_dashboard_page(patient_id):
     data_path = "selected_20_final_patients.csv"
