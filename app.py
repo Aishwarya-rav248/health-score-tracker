@@ -43,6 +43,7 @@ features = ['Height_cm', 'BMI', 'Weight_kg', 'Diastolic_BP', 'Heart_Rate',
 predicted_score = model.predict(pd.DataFrame([patient_data[features]]))[0]
 
 
+
 # Show vitals
 st.subheader("📋 Patient Vitals")
 st.dataframe(patient_data[features].to_frame().T)
