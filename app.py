@@ -39,6 +39,8 @@ def show_dashboard_page(patient_id):
         return
 
     df = pd.read_csv(data_path)
+    st.write("Columns in your CSV:", df.columns.tolist())
+    
     patient_df = df[df["patient"].astype(str) == patient_id].sort_values("date")
 
     if patient_df.empty:
