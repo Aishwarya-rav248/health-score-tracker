@@ -52,12 +52,12 @@ else:
     input_data = patient_data[features].values.reshape(1, -1)
 
     # ✅ Predict only if model loaded
-    if model:
-        predicted_score = model.predict(input_data)[0]
-        st.metric("Predicted Score", round(predicted_score, 2))
-    else:
-        st.error("❌ Model not loaded. Please recheck your .pkl file or environment.")
-
+    if model is not None:
+    predicted_score = model.predict(input_data)[0]
+    st.metric("Predicted Score", round(predicted_score, 2))
+    st.progress(min(1.0, calculated_score / 100))
+else:
+    st.error("❌ Model not loaded. Please recheck your .pkl file or environment.")
 
 
 # Show vitals
