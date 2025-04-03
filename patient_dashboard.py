@@ -6,7 +6,7 @@ def show_dashboard_page(patient_id):
     st.sidebar.title("HealthPredict")
     st.sidebar.success(f"Patient ID: {patient_id}")
 
-    df = pd.read_csv("data/selected_20_final_patients.csv")
+    df = pd.read_csv("selected_20_final_patients.csv")
     patient_df = df[df["patient_id"] == patient_id].sort_values("visit_date")
 
     latest = patient_df.iloc[-1]
