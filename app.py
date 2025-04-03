@@ -43,18 +43,24 @@ def show_dashboard_page(patient_id):
     
     patient_df = df[df["patient"].astype(str) == patient_id].sort_values("date")
 
-    if patient_df.empty:
-        st.warning("No data found for the selected Patient ID.")
-        return
+    # Inside show_dashboard_page()
 
-    latest = patient_df.iloc[-1]
+if patient_df.empty:
+    st.warning("No data found for the selected Patient ID.")
+    return
 
-    st.sidebar.title("HealthPredict")
-    st.sidebar.success(f"Patient ID: {patient_id}")
+latest = patient_df.iloc[-1]
 
-    st.title("Patient Details")
-    col1, col2 = st.columns(2)
-    col1, col2 = st.columns(2)
+# Sidebar
+st.sidebar.title("HealthPredict")
+st.sidebar.success(f"Patient ID: {patient_id}")
+
+# Dashboard
+st.title("Patient Details")
+
+# ✅ This must come first before using col1 and col2
+col1, col2 = st.columns(2)
+
 with col1:
     st.subheader(f"Patient: {latest.get('patient', 'N/A')}")
     st.markdown(f"**Smoking Status:** {latest.get('Smoking_Status', 'N/A')}")
@@ -63,9 +69,8 @@ with col1:
 with col2:
     st.metric("BMI", latest.get("BMI", "N/A"))
     st.metric("Blood Pressure", f"{latest.get('Systolic_BP', 'N/A')}/{latest.get('Diastolic_BP', 'N/A')}")
-    st.metric("Heart Rate", latest.get("Heart_Rate", "N/A"))
-    st.metric("Risk Level", latest.get("Risk_Level", "N/A"))
-
+    st.metric("Heart Rate", latest.get("Heart_Rate", 'N/A'))
+    st.metric("Risk Level", latest.get("Risk_Level", 'N/A'))
 
     st.markdown("---")
     st.subheader("Health History Timeline")
