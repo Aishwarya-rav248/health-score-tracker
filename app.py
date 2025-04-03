@@ -39,12 +39,11 @@ def show_dashboard_page(patient_id):
         return  # ✅ inside the function
 
     df = pd.read_csv(data_path)
-    patient_df = df[df["patient"].astype(str) == patient_id].sort_values("date")
+patient_df = df[df["patient"].astype(str) == patient_id].sort_values("date")
 
-    if patient_df.empty:
-        st.warning("No data found for the selected Patient ID.")
-        return  # ✅ also inside the function
-
+if patient_df.empty:
+    st.warning("No data found for the selected Patient ID.")
+    return
 
 latest = patient_df.iloc[-1]
 
