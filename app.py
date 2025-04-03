@@ -40,7 +40,7 @@ calculated_score = calculate_health_score(patient_data)
 
 features = ['Height_cm', 'BMI', 'Weight_kg', 'Diastolic_BP', 'Heart_Rate',
             'Systolic_BP', 'Smoking_Status', 'Diabetes', 'Hyperlipidemia', 'Heart_Disease']
-predicted_score = model.predict([patient_data[features]])[0]
+predicted_score = model.predict(patient_data[features].to_frame().T)[0]
 
 # Show vitals
 st.subheader("📋 Patient Vitals")
