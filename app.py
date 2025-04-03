@@ -79,6 +79,14 @@ def show_dashboard_page(patient_id):
             st.write(f"**Health Score:** {row.get('Health_Score', 'N/A')}")
             st.write(f"**Risk Level:** {row.get('Risk_Level', 'N/A')}")
 
+# Health History Timeline loop ends here
+
+# Back button
+st.markdown("---")
+if st.button("🔙 Back to Login"):
+    st.session_state.logged_in = False
+    st.session_state.patient_id = ""
+    st.session_state.rerun = True
 
 # ----------- MAIN -----------
 
