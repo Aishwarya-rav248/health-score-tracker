@@ -57,13 +57,13 @@ def show_dashboard_page(patient_id):
 
     col1, col2 = st.columns(2)
 
-    with col1:
-    st.markdown("""
-        <div style='padding: 1rem; background-color: #262730; border-radius: 10px;'>
+   with col1:
+    st.markdown(f"""
+        <div style='padding: 1rem; background-color: #262730; border-radius: 10px; color: #ddd;'>
             <h3 style='margin-bottom: 0;'>Patient:</h3>
-            <p style='margin-top: 0; color: #ddd;'>""" + str(latest.get('patient', 'N/A')) + """</p>
-            <p><strong>Smoking Status:</strong> """ + str(latest.get('Smoking_Status', 'N/A')) + """</p>
-            <p><strong>Health Score:</strong> """ + str(health_score) + """ / 100</p>
+            <p style='margin-top: 0;'>{latest.get('patient', 'N/A')}</p>
+            <p><strong>Smoking Status:</strong> {latest.get('Smoking_Status', 'N/A')}</p>
+            <p><strong>Health Score:</strong> {health_score} / 100</p>
         </div>
     """, unsafe_allow_html=True)
 
