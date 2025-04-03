@@ -26,7 +26,7 @@ def show_login_page():
         if patient_id in df["patient"].astype(str).values:
             st.session_state.logged_in = True
             st.session_state.patient_id = patient_id
-            st.experimental_rerun()
+            st.session_state.rerun = True
         else:
             st.error("Invalid Patient ID")
 
@@ -77,11 +77,20 @@ def show_dashboard_page(patient_id):
 
 
 # ----------- MAIN -----------
+
+# Handle rerun workaround
+if st.session_state.get("rerun"):
+    st.session_state.rerun = False
+    st.experimental_rerun()
+
+# Initialize login state
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
     st.session_state.patient_id = ""
 
+# Route to the correct page
 if st.session_state.logged_in:
     show_dashboard_page(st.session_state.patient_id)
 else:
     show_login_page()
+
