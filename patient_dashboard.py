@@ -4,7 +4,7 @@ import pandas as pd
 import os
 
 def show_dashboard_page(patient_id):
-    data_path = "data/selected_20_final_patients.csv"
+    data_path = "selected_20_final_patients.csv"
     if not os.path.isfile(data_path):
         st.warning("Patient data file not found. Please upload 'selected_20_final_patients.csv' in the data/ folder.")
         return
