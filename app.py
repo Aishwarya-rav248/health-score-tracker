@@ -81,20 +81,14 @@ def show_dashboard_page(patient_id):
 
 # Health History Timeline loop ends here
 
-st.markdown("---")
 if st.button("🔙 Back to Login"):
     st.session_state.logged_in = False
     st.session_state.patient_id = ""
-    st.session_state.rerun = True
+    st.experimental_rerun()  # This is safe ONLY here, within a button click
 
 # ----------- MAIN -----------
 
-# Handle rerun workaround
-if st.session_state.get("rerun"):
-    st.session_state.rerun = False
-    st.experimental_rerun()
-
-# Initialize login state
+# Initialize session state variables
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
     st.session_state.patient_id = ""
