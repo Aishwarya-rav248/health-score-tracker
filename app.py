@@ -53,7 +53,7 @@ if st.session_state.page == "login":
     if st.button("Login"):
         st.session_state.selected_id = selected_id
         st.session_state.page = "dashboard"
-        st.experimental_rerun()
+        st.rerun()
 
 # -----------------------------
 # 📊 Dashboard Page
@@ -87,4 +87,4 @@ elif st.session_state.page == "dashboard":
     # Back button
     if st.button("Logout"):
         st.session_state.page = "login"
-        st.experimental_rerun()
+        st.rerun()
