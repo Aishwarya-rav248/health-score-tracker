@@ -1,25 +1,12 @@
 import streamlit as st
 import pandas as pd
-import cloudpickle
+import joblib
 
-# -----------------------------
-# ✅ Load the trained model safely
-# -----------------------------
-try:
-    with open("trained_rf_model_py312.pkl", "rb") as f:
-        model = cloudpickle.load(f)
-except Exception as e:
-    model = None
-    st.error(f"❌ Model loading failed: {e}")
-
-# -----------------------------
-# ✅ Load the dataset
-# -----------------------------
+# Load model and data
 df = pd.read_csv("20 patients final final.csv")
+model = joblib.load("trained_rf_model.pkl")
 
-# -----------------------------
-# ✅ Define health score function
-# -----------------------------
+# Health score calculation function
 def calculate_health_score(row):
     score = 100
     score -= row['BMI'] * 0.3
@@ -37,40 +24,34 @@ def calculate_health_score(row):
         score -= 12
     return score
 
-# -----------------------------
-# 🔐 Sidebar Login
-# -----------------------------
+# Sidebar login
 st.sidebar.title("Patient Login")
 patient_ids = df["Short_Patient_ID"].unique()
 selected_id = st.sidebar.selectbox("Select Short Patient ID", patient_ids)
 
-# -----------------------------
-# 📊 Main Dashboard
-# -----------------------------
+# Main dashboard
 st.title("🏥 Patient Health Dashboard")
-features = ['Height_cm', 'BMI', 'Weight_kg', 'Diastolic_BP', 'Heart_Rate',
-            'Systolic_BP', 'Smoking_Status', 'Diabetes', 'Hyperlipidemia', 'Heart_Disease']
 
 patient_data = df[df["Short_Patient_ID"] == selected_id].iloc[0]
 calculated_score = calculate_health_score(patient_data)
 
-# Show Vitals
+features = ['Height_cm', 'BMI', 'Weight_kg', 'Diastolic_BP', 'Heart_Rate',
+            'Systolic_BP', 'Smoking_Status', 'Diabetes', 'Hyperlipidemia', 'Heart_Disease']
+predicted_score = model.predict([patient_data[features]])[0]
+
+# Show vitals
 st.subheader("📋 Patient Vitals")
 st.dataframe(patient_data[features].to_frame().T)
 
-# Show Calculated Score
+# Health scores
 st.subheader("💡 Health Score Summary")
 st.metric(label="Calculated Score", value=round(calculated_score, 2))
+st.metric(label="Predicted Score", value=round(predicted_score, 2))
 
-# Safe model prediction
-missing = [col for col in features if col not in patient_data]
-if missing:
-    st.error(f"Missing columns in patient data: {missing}")
-else:
-    input_data = patient_data[features].values.reshape(1, -1)
-    if model is not None:
-        predicted_score = model.predict(input_data)[0]
-        st.metric("Predicted Score", round(predicted_score, 2))
-        st.progress(min(1.0, calculated_score / 100))
-    else:
-        st.error("❌ Model not loaded. Please recheck your .pkl file or environment.")
+# Score progress
+st.progress(min(1.0, calculated_score / 100))
+st.write("Above is your calculated health score (max: 100).")
+
+# Simple risk flag
+if calculated_score < 70 or predicted_score < 70:
+    st.warning("⚠️ Health risk detected. Consider lifestyle changes and medical consultation.")
