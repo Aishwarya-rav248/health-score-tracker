@@ -40,8 +40,16 @@ calculated_score = calculate_health_score(patient_data)
 
 features = ['Height_cm', 'BMI', 'Weight_kg', 'Diastolic_BP', 'Heart_Rate',
             'Systolic_BP', 'Smoking_Status', 'Diabetes', 'Hyperlipidemia', 'Heart_Disease']
-input_data = patient_data[features].values.reshape(1, -1)
-predicted_score = model.predict(input_data)[0]
+
+# ✅ Check for missing features in the selected patient
+missing = [col for col in features if col not in patient_data]
+if missing:
+    st.error(f"Missing columns in patient data: {missing}")
+else:
+    # ✅ Safe to proceed with prediction
+    input_data = patient_data[features].values.reshape(1, -1)
+    predicted_score = model.predict(input_data)[0]
+
 
 
 # Show vitals
