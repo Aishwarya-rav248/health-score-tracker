@@ -9,6 +9,8 @@ def show_login_page():
     st.subheader("Login with Patient ID")
 
     patient_id = st.text_input("Enter Patient ID")
+    st.write("Columns in uploaded CSV:", df.columns.tolist())
+
 
     if st.button("Login"):
         data_path = "selected_20_final_patients.csv"
