@@ -41,14 +41,22 @@ calculated_score = calculate_health_score(patient_data)
 features = ['Height_cm', 'BMI', 'Weight_kg', 'Diastolic_BP', 'Heart_Rate',
             'Systolic_BP', 'Smoking_Status', 'Diabetes', 'Hyperlipidemia', 'Heart_Disease']
 
-# ✅ Check for missing features in the selected patient
+patient_data = df[df["Short_Patient_ID"] == selected_id].iloc[0]
+calculated_score = calculate_health_score(patient_data)
+
+# ✅ Check for missing features
 missing = [col for col in features if col not in patient_data]
 if missing:
     st.error(f"Missing columns in patient data: {missing}")
 else:
-    # ✅ Safe to proceed with prediction
     input_data = patient_data[features].values.reshape(1, -1)
-    predicted_score = model.predict(input_data)[0]
+
+    # ✅ Predict only if model loaded
+    if model:
+        predicted_score = model.predict(input_data)[0]
+        st.metric("Predicted Score", round(predicted_score, 2))
+    else:
+        st.error("❌ Model not loaded. Please recheck your .pkl file or environment.")
 
 
 
