@@ -40,8 +40,8 @@ calculated_score = calculate_health_score(patient_data)
 
 features = ['Height_cm', 'BMI', 'Weight_kg', 'Diastolic_BP', 'Heart_Rate',
             'Systolic_BP', 'Smoking_Status', 'Diabetes', 'Hyperlipidemia', 'Heart_Disease']
-predicted_score = model.predict(pd.DataFrame([patient_data[features]]))[0]
-
+input_data = patient_data[features].values.reshape(1, -1)
+predicted_score = model.predict(input_data)[0]
 
 
 # Show vitals
