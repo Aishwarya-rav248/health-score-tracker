@@ -38,17 +38,21 @@ def show_dashboard_page(patient_id):
         st.warning("Data file not found.")
         return
 
-    df = pd.read_csv(data_path)
-    patient_df = df[df["patient"].astype(str) == patient_id].sort_values("date")
+  df = pd.read_csv(data_path)
+patient_df = df[df["patient"].astype(str) == patient_id].sort_values("date")
 
-    if patient_df.empty:
-        st.warning("No data found for the selected Patient ID.")
-        return
+if patient_df.empty:
+    st.warning("No data found for the selected Patient ID.")
+    return
 
-    latest = patient_df.iloc[-1]
+# ✅ Define `latest` before using it
+latest = patient_df.iloc[-1]
 
-    # --------------------- Health Score Section ---------------------
+# ✅ Then use it below
 health_score = latest.get("Health_Score", None)
+
+# Now show gauge chart, score, etc.
+
 
 if pd.notna(health_score):
     st.subheader("Health Score")
