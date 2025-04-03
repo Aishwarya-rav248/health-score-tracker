@@ -1,10 +1,13 @@
 import streamlit as st
 import pandas as pd
-import joblib
+
 
 # Load model and data
 df = pd.read_csv("20 patients final final.csv")
-model = joblib.load("trained_rf_model_py312.pkl")
+
+import cloudpickle
+with open("trained_rf_model_py312.pkl", "rb") as f:
+    model = cloudpickle.load(f)
 
 # Health score calculation function
 def calculate_health_score(row):
