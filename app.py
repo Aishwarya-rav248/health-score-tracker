@@ -79,23 +79,15 @@ def show_dashboard_page(patient_id):
             st.write(f"**Health Score:** {row.get('Health_Score', 'N/A')}")
             st.write(f"**Risk Level:** {row.get('Risk_Level', 'N/A')}")
 
-# Health History Timeline loop ends here
-
-if st.button("🔙 Back to Login"):
-    st.session_state.logged_in = False
-    st.session_state.patient_id = ""
-    st.experimental_rerun()  # This is safe ONLY here, within a button click
 
 # ----------- MAIN -----------
-
-# Initialize session state variables
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
     st.session_state.patient_id = ""
 
-# Route to the correct page
 if st.session_state.logged_in:
     show_dashboard_page(st.session_state.patient_id)
 else:
     show_login_page()
+
 
