@@ -1,6 +1,3 @@
-# Update app.py to read CSV from the current directory instead of a subfolder
-
-single_app_inline_csv = """
 import streamlit as st
 import pandas as pd
 import os
