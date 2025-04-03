@@ -35,19 +35,16 @@ def show_login_page():
 def show_dashboard_page(patient_id):
     data_path = "selected_20_final_patients.csv"
     if not os.path.isfile(data_path):
-        st.warning("Patient data file not found. Please upload 'selected_20_final_patients.csv' to the root directory.")
-        return
+        st.warning("Data file not found.")
+        return  # ✅ inside the function
 
     df = pd.read_csv(data_path)
-    st.write("Columns in your CSV:", df.columns.tolist())
-    
     patient_df = df[df["patient"].astype(str) == patient_id].sort_values("date")
 
-    # Inside show_dashboard_page()
+    if patient_df.empty:
+        st.warning("No data found for the selected Patient ID.")
+        return  # ✅ also inside the function
 
-if patient_df.empty:
-    st.warning("No data found for the selected Patient ID.")
-    return
 
 latest = patient_df.iloc[-1]
 
