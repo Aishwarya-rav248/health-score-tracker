@@ -40,7 +40,8 @@ def show_dashboard_page(patient_id):
         return
 
     df = pd.read_csv(data_path)
-    patient_df = df[df["patient_id"] == patient_id].sort_values("visit_date")
+    patient_df = df[df["patient"].astype(str) == patient_id].sort_values("visit_date")
+
 
 
     if patient_df.empty:
