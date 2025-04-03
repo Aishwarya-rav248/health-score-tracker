@@ -54,17 +54,18 @@ def show_dashboard_page(patient_id):
 
     st.title("Patient Details")
     col1, col2 = st.columns(2)
-    with col1:
-        st.subheader(f"{latest.get('first_name', '')} {latest.get('last_name', '')}")
-        st.markdown(f"**Age:** {latest.get('age', 'N/A')}  \n**Gender:** {latest.get('gender', 'N/A')}")
-        st.markdown(f"**Smoking Status:** {latest.get('smoking_status', 'N/A')}")
-        st.markdown(f"**Health Score:** {latest.get('health_score', 'N/A')} / 100")
+    col1, col2 = st.columns(2)
+with col1:
+    st.subheader(f"Patient: {latest.get('patient', 'N/A')}")
+    st.markdown(f"**Smoking Status:** {latest.get('Smoking_Status', 'N/A')}")
+    st.markdown(f"**Health Score:** {latest.get('Health_Score', 'N/A')} / 100")
 
-    with col2:
-        st.metric("BMI", latest.get("bmi", "N/A"))
-        st.metric("Blood Pressure", latest.get("bp", "N/A"))
-        st.metric("Heart Rate", latest.get("heart_rate", "N/A"))
-        st.metric("Risk Score", latest.get("risk_score", "N/A"))
+with col2:
+    st.metric("BMI", latest.get("BMI", "N/A"))
+    st.metric("Blood Pressure", f"{latest.get('Systolic_BP', 'N/A')}/{latest.get('Diastolic_BP', 'N/A')}")
+    st.metric("Heart Rate", latest.get("Heart_Rate", "N/A"))
+    st.metric("Risk Level", latest.get("Risk_Level", "N/A"))
+
 
     st.markdown("---")
     st.subheader("Health History Timeline")
