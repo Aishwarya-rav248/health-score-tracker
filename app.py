@@ -81,7 +81,6 @@ def show_dashboard_page(patient_id):
 
 # Health History Timeline loop ends here
 
-# Back button
 st.markdown("---")
 if st.button("🔙 Back to Login"):
     st.session_state.logged_in = False
