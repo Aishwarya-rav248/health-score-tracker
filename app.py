@@ -7,7 +7,6 @@ try:
 except Exception as e:
     model = None
     st.error(f"❌ Model loading failed: {e}")
-
 # -----------------------------
 # ✅ Load the dataset
 # -----------------------------
