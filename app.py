@@ -1,81 +1,57 @@
-
 import streamlit as st
 import pandas as pd
 import joblib
-import plotly.graph_objects as go
 
-@st.cache_data
-def load_data():
-    df = pd.read_csv("data/FINAL_20_PATIENTS.csv")
-    model = joblib.load("model/heart_disease_model.pkl")
-    return df, model
+# Load model and data
+df = pd.read_csv("20 patients final final.csv")
+model = joblib.load("trained_rf_model.pkl")
 
-df, model = load_data()
+# Health score calculation function
+def calculate_health_score(row):
+    score = 100
+    score -= row['BMI'] * 0.3
+    score -= row['Systolic_BP'] * 0.2
+    score -= row['Diastolic_BP'] * 0.1
+    score -= row['Heart_Rate'] * 0.1
+    score -= row['Smoking_Status'] * 5
+    if row['Heart_Disease'] == 1:
+        score -= 15
+    if row['Diabetes'] == 1:
+        score -= 12
+    if row['Weight_kg'] > 100:
+        score -= 10
+    if row['Hyperlipidemia'] == 1:
+        score -= 12
+    return score
 
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
+# Sidebar login
+st.sidebar.title("Patient Login")
+patient_ids = df["Short_Patient_ID"].unique()
+selected_id = st.sidebar.selectbox("Select Short Patient ID", patient_ids)
 
-if not st.session_state.logged_in:
-    st.title("HealthPredict Login")
-    patient_id = st.text_input("Enter your Patient ID:")
-    if st.button("Login"):
-        if patient_id in df["patient"].values:
-            st.session_state.logged_in = True
-            st.session_state.patient_id = patient_id
-            st.experimental_rerun()
-        else:
-            st.error("Invalid Patient ID")
-else:
-    st.sidebar.title("HealthPredict")
-    st.sidebar.markdown("Monitor your health metrics and risk predictions")
+# Main dashboard
+st.title("🏥 Patient Health Dashboard")
 
-    st.title("Patient Dashboard")
-    patient_df = df[df["patient"] == st.session_state.patient_id]
+patient_data = df[df["Short_Patient_ID"] == selected_id].iloc[0]
+calculated_score = calculate_health_score(patient_data)
 
-    if not patient_df.empty:
-        personal_info = patient_df.iloc[0]
-        col1, col2 = st.columns(2)
-        with col1:
-            st.subheader("Patient Information")
-            st.markdown(f"**Name**: {personal_info['First Name']} {personal_info['Last Name']}")
-            st.markdown(f"**Gender**: {personal_info['Gender']}")
-            st.markdown(f"**DOB**: {personal_info['Date_of_Birth']}")
-            st.markdown(f"**Smoking**: {personal_info['Smoking_Status']}")
-        with col2:
-            st.subheader("Health Score")
-            score = int(personal_info['Health_Score'])
-            fig = go.Figure(go.Indicator(
-                mode="gauge+number",
-                value=score,
-                gauge={
-                    'axis': {'range': [0, 100]},
-                    'bar': {'color': "green" if score > 80 else "orange" if score > 60 else "red"},
-                    'steps': [
-                        {'range': [0, 60], 'color': "red"},
-                        {'range': [60, 80], 'color': "orange"},
-                        {'range': [80, 100], 'color': "green"},
-                    ]
-                }
-            ))
-            st.plotly_chart(fig, use_container_width=True)
+features = ['Height_cm', 'BMI', 'Weight_kg', 'Diastolic_BP', 'Heart_Rate',
+            'Systolic_BP', 'Smoking_Status', 'Diabetes', 'Hyperlipidemia', 'Heart_Disease']
+predicted_score = model.predict([patient_data[features]])[0]
 
-        st.subheader("Visit-wise Health History")
-        history = patient_df.sort_values(by="Date")
-        for _, visit in history.iterrows():
-            st.markdown(f"### {pd.to_datetime(visit['Date']).strftime('%B %d, %Y')}")
-            st.markdown(f"- **Weight**: {visit['Weight']} kg")
-            st.markdown(f"- **BMI**: {visit['BMI']}")
-            st.markdown(f"- **Blood Pressure**: {visit['Systolic_BP']}/{visit['Diastolic_BP']} mmHg")
-            st.markdown(f"- **Heart Rate**: {visit['Heart_Rate']} bpm")
-            st.markdown(f"- **Health Score**: {int(visit['Health_Score'])}")
+# Show vitals
+st.subheader("📋 Patient Vitals")
+st.dataframe(patient_data[features].to_frame().T)
 
-        st.subheader("Heart Disease Risk Prediction")
-        features = ['BMI', 'Systolic_BP', 'Diastolic_BP', 'Heart_Rate']
-        latest = patient_df.sort_values('Date').iloc[-1]
-        input_features = latest[features].values.reshape(1, -1)
-        prediction = model.predict(input_features)[0]
-        st.success(f"Predicted Risk: **{'Yes' if prediction else 'No'}**")
+# Health scores
+st.subheader("💡 Health Score Summary")
+st.metric(label="Calculated Score", value=round(calculated_score, 2))
+st.metric(label="Predicted Score", value=round(predicted_score, 2))
 
-    if st.button("Logout"):
-        st.session_state.logged_in = False
-        st.experimental_rerun()
+# Score progress
+st.progress(min(1.0, calculated_score / 100))
+st.write("Above is your calculated health score (max: 100).")
+
+# Simple risk flag
+if calculated_score < 70 or predicted_score < 70:
+    st.warning("⚠️ Health risk detected. Consider lifestyle changes and medical consultation.")
