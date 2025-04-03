@@ -59,13 +59,14 @@ def show_dashboard_page(patient_id):
 
     with col1:
     st.markdown("""
-    <div style='padding: 1rem; background-color: #262730; border-radius: 10px;'>
-        <h3 style='margin-bottom: 0;'>Patient:</h3>
-        <p style='margin-top: 0; color: #ddd;'>""" + str(latest.get('patient', 'N/A')) + """</p>
-        <p><strong>Smoking Status:</strong> """ + str(latest.get('Smoking_Status', 'N/A')) + """</p>
-        <p><strong>Health Score:</strong> """ + str(health_score) + """ / 100</p>
-    </div>
+        <div style='padding: 1rem; background-color: #262730; border-radius: 10px;'>
+            <h3 style='margin-bottom: 0;'>Patient:</h3>
+            <p style='margin-top: 0; color: #ddd;'>""" + str(latest.get('patient', 'N/A')) + """</p>
+            <p><strong>Smoking Status:</strong> """ + str(latest.get('Smoking_Status', 'N/A')) + """</p>
+            <p><strong>Health Score:</strong> """ + str(health_score) + """ / 100</p>
+        </div>
     """, unsafe_allow_html=True)
+
 
     with col2:
         st.metric("BMI", latest.get("BMI", "N/A"))
