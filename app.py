@@ -58,7 +58,6 @@ st.sidebar.success(f"Patient ID: {patient_id}")
 # Dashboard
 st.title("Patient Details")
 
-# ✅ This must come first before using col1 and col2
 col1, col2 = st.columns(2)
 
 with col1:
@@ -72,16 +71,20 @@ with col2:
     st.metric("Heart Rate", latest.get("Heart_Rate", 'N/A'))
     st.metric("Risk Level", latest.get("Risk_Level", 'N/A'))
 
-    st.markdown("---")
-    st.subheader("Health History Timeline")
+# ✅ Moved timeline outside of col2
+st.markdown("---")
+st.subheader("Health History Timeline")
 
-    for _, row in patient_df.iterrows():
-        with st.expander(f"Visit on {row['date']}"):
-            st.write(f"**Weight:** {row.get('weight', 'N/A')} kg")
-            st.write(f"**BMI:** {row.get('bmi', 'N/A')}")
-            st.write(f"**Blood Pressure:** {row.get('bp', 'N/A')}")
-            st.write(f"**Heart Rate:** {row.get('heart_rate', 'N/A')}")
-            st.write(f"**Health Score:** {row.get('health_score', 'N/A')}")
+for _, row in patient_df.iterrows():
+    with st.expander(f"Visit on {row['date']}"):
+        st.write(f"**Height:** {row.get('Height_cm', 'N/A')} cm")
+        st.write(f"**Weight:** {row.get('Weight_kg', 'N/A')} kg")
+        st.write(f"**BMI:** {row.get('BMI', 'N/A')}")
+        st.write(f"**Blood Pressure:** {row.get('Systolic_BP', 'N/A')}/{row.get('Diastolic_BP', 'N/A')}")
+        st.write(f"**Heart Rate:** {row.get('Heart_Rate', 'N/A')}")
+        st.write(f"**Smoking Status:** {row.get('Smoking_Status', 'N/A')}")
+        st.write(f"**Health Score:** {row.get('Health_Score', 'N/A')}")
+        st.write(f"**Risk Level:** {row.get('Risk_Level', 'N/A')}")
 
 
 # ----------- MAIN -----------
