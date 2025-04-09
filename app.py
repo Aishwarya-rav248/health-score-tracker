@@ -3,51 +3,62 @@ import pandas as pd
 import os
 import plotly.graph_objects as go
 
-# ------------------ Global Custom CSS ------------------
+# ------------------ Custom CSS ------------------
 st.markdown("""
     <style>
-        .main {
-            background-color: #F4F7FE;
+        html, body, .main {
+            background-color: #f4f7ff;
         }
 
+        /* Sidebar styling */
         [data-testid="stSidebar"] {
             background-color: #ffffff;
-            padding: 2rem 1rem;
-            border-right: 1px solid #eaeaea;
+            padding-top: 3rem;
+            border-right: 1px solid #e1e4ed;
+        }
+
+        [data-testid="stSidebar"] .css-ng1t4o {
+            font-size: 16px;
+            color: #333;
         }
 
         .title-section {
             font-size: 28px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            color: #333;
+            font-weight: 700;
+            color: #1e1e1e;
+            margin-bottom: 1.5rem;
         }
 
         .card {
-            padding: 1.2rem;
-            border-radius: 12px;
+            padding: 1.5rem;
+            border-radius: 16px;
             background-color: #ffffff;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         .card h3 {
-            margin-bottom: 0.5rem;
+            font-size: 20px;
+            margin-bottom: 0.6rem;
             color: #444;
         }
 
         .card p {
-            margin-top: 0;
+            margin: 0.3rem 0;
             font-weight: 500;
-            color: #333;
+            color: #222;
         }
 
         .stMetric {
             background-color: #ffffff !important;
-            padding: 1rem;
+            padding: 1rem !important;
             border-radius: 12px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
             margin-bottom: 10px;
+        }
+
+        .stPlotlyChart {
+            margin-top: -20px;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -103,10 +114,11 @@ def show_dashboard_page(patient_id):
     st.sidebar.success(f"Patient ID:\n{patient_id}")
 
     page_option = st.sidebar.radio(
-        "Select Section",
-        ["Overview", "Visit History"],
-        key="dashboard_section"
-    )
+    "Select Section",
+    ["Overview", "🕓 Visit History"],
+    key="dashboard_section"
+)
+
 
     # ---------- OVERVIEW PAGE ----------
     if page_option == "Overview":
@@ -116,13 +128,14 @@ def show_dashboard_page(patient_id):
 
         with col1:
             st.markdown(f"""
-                <div class='card'>
-                    <h3>Patient:</h3>
-                    <p>{latest.get('patient', 'N/A')}</p>
-                    <p><strong>Smoking Status:</strong> {latest.get('Smoking_Status', 'N/A')}</p>
-                    <p><strong>Health Score:</strong> {health_score} / 100</p>
-                </div>
-            """, unsafe_allow_html=True)
+    <div class='card'>
+        <h3>Patient:</h3>
+        <p>{latest.get('patient', 'N/A')}</p>
+        <p><strong>Smoking Status:</strong> {latest.get('Smoking_Status', 'N/A')}</p>
+        <p><strong>Health Score:</strong> {health_score} / 100</p>
+    </div>
+""", unsafe_allow_html=True)
+
 
         with col2:
             st.metric("BMI", latest.get("BMI", "N/A"))
