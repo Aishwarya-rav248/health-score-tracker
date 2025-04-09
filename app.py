@@ -112,76 +112,38 @@ def show_dashboard_page(patient_id):
     # ---------- SIDEBAR ----------
     st.sidebar.title("HealthPredict")
     st.sidebar.success(f"Patient ID:\n{patient_id}")
-
-    page_option = st.sidebar.radio(
+# ---- Section selection from sidebar ----
+page_option = st.sidebar.radio(
     "Select Section",
-    ["Overview", "🕓 Visit History"],
+    ["Overview", "Visit History"],
     key="dashboard_section"
 )
 
+# ---------- OVERVIEW PAGE ----------
+if page_option == "Overview":
+    st.title("Patient Details")
+    
+    col1, col2 = st.columns(2)
 
-    # ---------- OVERVIEW PAGE ----------
-    if page_option == "Overview":
-        st.markdown('<div class="title-section">Patient Details</div>', unsafe_allow_html=True)
+    with col1:
+        st.markdown(f"""
+            <div style='padding: 1rem; background-color: #262730; border-radius: 10px; color: #ddd;'>
+                <h3 style='margin-bottom: 0;'>Patient:</h3>
+                <p style='margin-top: 0;'>{latest.get('patient', 'N/A')}</p>
+                <p><strong>Smoking Status:</strong> {latest.get('Smoking_Status', 'N/A')}</p>
+                <p><strong>Health Score:</strong> {health_score} / 100</p>
+            </div>
+        """, unsafe_allow_html=True)
 
-        col1, col2 = st.columns(2)
+    with col2:
+        st.metric("BMI", latest.get("BMI", "N/A"))
+        st.metric("Blood Pressure", f"{latest.get('Systolic_BP', 'N/A')}/{latest.get('Diastolic_BP', 'N/A')}")
+        st.metric("Heart Rate", latest.get("Heart_Rate", "N/A"))
+        st.metric("Risk Level", latest.get("Risk_Level", "N/A"))
 
-        with col1:
-            st.markdown(f"""
-    <div class='card'>
-        <h3>Patient:</h3>
-        <p>{latest.get('patient', 'N/A')}</p>
-        <p><strong>Smoking Status:</strong> {latest.get('Smoking_Status', 'N/A')}</p>
-        <p><strong>Health Score:</strong> {health_score} / 100</p>
-    </div>
-""", unsafe_allow_html=True)
+    # your gauge + measures + back button code here ...
 
-
-        with col2:
-            st.metric("BMI", latest.get("BMI", "N/A"))
-            st.metric("Blood Pressure", f"{latest.get('Systolic_BP', 'N/A')}/{latest.get('Diastolic_BP', 'N/A')}")
-            st.metric("Heart Rate", latest.get("Heart_Rate", "N/A"))
-            st.metric("Risk Level", latest.get("Risk_Level", "N/A"))
-
-        if pd.notna(health_score):
-            st.subheader("Health Score")
-            fig = go.Figure(go.Indicator(
-                mode="gauge+number+delta",
-                value=health_score,
-                title={'text': "Health Score", 'font': {'size': 24}},
-                gauge={
-                    'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "darkgray"},
-                    'bar': {'color': "#4CAF50"},
-                    'bgcolor': "white",
-                    'steps': [
-                        {'range': [0, 50], 'color': '#ff4d4d'},
-                        {'range': [50, 75], 'color': '#ffa94d'},
-                        {'range': [75, 100], 'color': '#4caf50'}
-                    ],
-                    'threshold': {
-                        'line': {'color': "black", 'width': 4},
-                        'thickness': 0.75,
-                        'value': health_score
-                    }
-                }
-            ))
-            st.plotly_chart(fig, use_container_width=True)
-
-            # Preventive Measures
-            st.subheader("Preventive Measures")
-            bmi = latest.get("BMI", None)
-            heart_rate = latest.get("Heart_Rate", None)
-            systolic_bp = latest.get("Systolic_BP", None)
-
-            if pd.notna(bmi):
-                st.write(f"1. BMI Optimization (BMI: {bmi}) – Focus on balanced diet & exercise.")
-            if pd.notna(heart_rate) and heart_rate > 80:
-                st.write(f"2. Heart Rate Management ({heart_rate} bpm) – Practice stress reduction techniques.")
-            if pd.notna(systolic_bp) and systolic_bp > 130:
-                st.write(f"3. Blood Pressure Monitoring ({systolic_bp} mm Hg) – Limit salt intake, exercise regularly.")
-            st.write("4. Regular Checkups – Monitor blood sugar, cholesterol, and maintain healthy routines.")
-
-    # ---------- VISIT HISTORY PAGE ----------
+# ---------- VISIT HISTORY PAGE ----------
 elif page_option == "Visit History":
     st.title("📖 Visit History")
 
