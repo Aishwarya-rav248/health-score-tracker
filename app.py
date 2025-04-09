@@ -1,11 +1,59 @@
-
 import streamlit as st
 import pandas as pd
 import os
 import plotly.graph_objects as go
 
+# ------------------ Global Custom CSS ------------------
+st.markdown("""
+    <style>
+        .main {
+            background-color: #F4F7FE;
+        }
 
-# ----------- LOGIN PAGE -----------
+        [data-testid="stSidebar"] {
+            background-color: #ffffff;
+            padding: 2rem 1rem;
+            border-right: 1px solid #eaeaea;
+        }
+
+        .title-section {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .card {
+            padding: 1.2rem;
+            border-radius: 12px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 1rem;
+        }
+
+        .card h3 {
+            margin-bottom: 0.5rem;
+            color: #444;
+        }
+
+        .card p {
+            margin-top: 0;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .stMetric {
+            background-color: #ffffff !important;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            margin-bottom: 10px;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+
+# ------------------ LOGIN PAGE ------------------
 def show_login_page():
     st.title("Welcome to HealthPredict")
     st.subheader("Login with Patient ID")
@@ -33,8 +81,7 @@ def show_login_page():
             st.error("Invalid Patient ID")
 
 
-# ----------- DASHBOARD PAGE -----------
-
+# ------------------ DASHBOARD PAGE ------------------
 def show_dashboard_page(patient_id):
     data_path = "selected_20_final_patients.csv"
     if not os.path.isfile(data_path):
@@ -63,14 +110,15 @@ def show_dashboard_page(patient_id):
 
     # ---------- OVERVIEW PAGE ----------
     if page_option == "Overview":
-        st.title("Patient Details")
+        st.markdown('<div class="title-section">Patient Details</div>', unsafe_allow_html=True)
+
         col1, col2 = st.columns(2)
 
         with col1:
             st.markdown(f"""
-                <div style='padding: 1rem; background-color: #262730; border-radius: 10px; color: #ddd;'>
-                    <h3 style='margin-bottom: 0;'>Patient:</h3>
-                    <p style='margin-top: 0;'>{latest.get('patient', 'N/A')}</p>
+                <div class='card'>
+                    <h3>Patient:</h3>
+                    <p>{latest.get('patient', 'N/A')}</p>
                     <p><strong>Smoking Status:</strong> {latest.get('Smoking_Status', 'N/A')}</p>
                     <p><strong>Health Score:</strong> {health_score} / 100</p>
                 </div>
@@ -84,29 +132,29 @@ def show_dashboard_page(patient_id):
 
         if pd.notna(health_score):
             st.subheader("Health Score")
-            gauge = go.Figure(go.Indicator(
-                mode="gauge+number",
+            fig = go.Figure(go.Indicator(
+                mode="gauge+number+delta",
                 value=health_score,
+                title={'text': "Health Score", 'font': {'size': 24}},
                 gauge={
-                    'axis': {'range': [0, 100]},
-                    'bar': {'color': "green" if health_score >= 85 else "orange" if health_score >= 75 else "red"},
+                    'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "darkgray"},
+                    'bar': {'color': "#4CAF50"},
+                    'bgcolor': "white",
                     'steps': [
-                        {'range': [0, 74], 'color': "red"},
-                        {'range': [75, 84], 'color': "orange"},
-                        {'range': [85, 100], 'color': "green"}
-                    ]
-                },
-                domain={'x': [0, 1], 'y': [0, 1]}
+                        {'range': [0, 50], 'color': '#ff4d4d'},
+                        {'range': [50, 75], 'color': '#ffa94d'},
+                        {'range': [75, 100], 'color': '#4caf50'}
+                    ],
+                    'threshold': {
+                        'line': {'color': "black", 'width': 4},
+                        'thickness': 0.75,
+                        'value': health_score
+                    }
+                }
             ))
-            st.plotly_chart(gauge)
+            st.plotly_chart(fig, use_container_width=True)
 
-            if health_score >= 85:
-                st.success("Excellent")
-            elif health_score >= 75:
-                st.warning("Needs Improvement")
-            else:
-                st.error("Unhealthy: Immediate Action Required!")
-
+            # Preventive Measures
             st.subheader("Preventive Measures")
             bmi = latest.get("BMI", None)
             heart_rate = latest.get("Heart_Rate", None)
@@ -159,7 +207,8 @@ def show_dashboard_page(patient_id):
         st.session_state.page = 'login'
         st.rerun()
 
-# ----------- MAIN -----------
+
+# ------------------ MAIN ------------------
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
     st.session_state.patient_id = ""
@@ -168,5 +217,3 @@ if st.session_state.logged_in:
     show_dashboard_page(st.session_state.patient_id)
 else:
     show_login_page()
-
-
