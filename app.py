@@ -182,7 +182,7 @@ def show_dashboard_page(patient_id):
             st.write("4. Regular Checkups – Monitor blood sugar, cholesterol, and maintain healthy routines.")
 
     # ---------- VISIT HISTORY PAGE ----------
-    elif page_option == "Visit History":
+elif page_option == "Visit History":
     st.title("📖 Visit History")
 
     trend_df = patient_df[["date", "Health_Score"]].dropna()
@@ -206,7 +206,7 @@ def show_dashboard_page(patient_id):
             st.write(f"**Heart Rate:** {row.get('Heart_Rate', 'N/A')}")
             st.write(f"**Smoking Status:** {row.get('Smoking_Status', 'N/A')}")
             st.write(f"**Health Score:** {row.get('Health_Score', 'N/A')}")
-            
+
             risk = str(row.get('Risk_Level', 'N/A')).lower()
             if 'high' in risk:
                 st.error(f"**Risk Level:** {risk.capitalize()}")
@@ -216,6 +216,7 @@ def show_dashboard_page(patient_id):
                 st.success(f"**Risk Level:** {risk.capitalize()}")
             else:
                 st.info(f"**Risk Level:** {risk.capitalize()}")
+
     # ---------- BACK TO LOGIN ----------
     st.markdown("---")
     if st.button("🔙 Back to Login"):
