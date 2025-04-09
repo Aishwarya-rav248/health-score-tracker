@@ -112,6 +112,7 @@ def show_dashboard_page(patient_id):
     # ---------- SIDEBAR ----------
     st.sidebar.title("HealthPredict")
     st.sidebar.success(f"Patient ID:\n{patient_id}")
+
 # ---- Section selection from sidebar ----
 page_option = st.sidebar.radio(
     "Select Section",
