@@ -100,16 +100,17 @@ def show_dashboard_page(patient_id):
     )
 
     if page_option == "Overview":
-     st.markdown('<div class="title-section">Overview</div>', unsafe_allow_html=True)
+     # Page Title
+st.markdown("<h2 style='text-align: center; margin-bottom: 2rem;'>Overview</h2>", unsafe_allow_html=True)
 
-# ------------ Row 1: Patient Info & Metrics ------------------
+# --- Row 1: Patient Info and Health Metrics ---
 row1_col1, row1_col2 = st.columns(2)
 
-# Card 1: Patient Info
+# --- Card 1: Patient Info ---
 with row1_col1:
     st.markdown(f"""
-        <div class='card'>
-            <h3>Patient Info</h3>
+        <div style='background-color: #f7f7f7; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);'>
+            <h4 style='color: #333;'>🧍 Patient Info</h4>
             <p><strong>Patient ID:</strong> {patient_id}</p>
             <p><strong>Height:</strong> {latest.get("Height_cm", "N/A")} cm</p>
             <p><strong>Weight:</strong> {latest.get("Weight_kg", "N/A")} kg</p>
@@ -117,11 +118,11 @@ with row1_col1:
         </div>
     """, unsafe_allow_html=True)
 
-# Card 2: Metrics
+# --- Card 2: Health Metrics ---
 with row1_col2:
     st.markdown(f"""
-        <div class='card'>
-            <h3>Health Metrics</h3>
+        <div style='background-color: #f7f7f7; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);'>
+            <h4 style='color: #333;'>🧾 Health Metrics</h4>
         </div>
     """, unsafe_allow_html=True)
     st.metric("BMI", latest.get("BMI", "N/A"))
@@ -129,15 +130,13 @@ with row1_col2:
     st.metric("Heart Rate", latest.get("Heart_Rate", "N/A"))
     st.metric("Risk Level", latest.get("Risk_Level", "N/A"))
 
-# ------------ Row 2: Health Score Gauge ------------------
-st.markdown("<br>", unsafe_allow_html=True)
+# --- Row 2: Health Score Gauge ---
+st.markdown("### 📊 Health Score")
 with st.container():
     st.markdown(f"""
-        <div class='card'>
-            <h3>Health Score</h3>
-        </div>
+        <div style='background-color: #f7f7f7; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);'>
     """, unsafe_allow_html=True)
-    
+
     if pd.notna(health_score):
         fig = go.Figure(go.Indicator(
             mode="gauge+number+delta",
@@ -169,11 +168,12 @@ with st.container():
         else:
             st.error("Unhealthy: Immediate Action Required!")
 
-# ------------ Row 3: Preventive Measures ------------------
-st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+# --- Row 3: Preventive Measures ---
+st.markdown("### 🛡️ Preventive Measures")
 st.markdown(f"""
-    <div class='card'>
-        <h3>Preventive Measures</h3>
+    <div style='background-color: #f7f7f7; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);'>
 """, unsafe_allow_html=True)
 
 bmi = latest.get("BMI", None)
@@ -187,8 +187,8 @@ if pd.notna(heart_rate) and heart_rate > 80:
 if pd.notna(systolic_bp) and systolic_bp > 130:
     st.write(f"3. Blood Pressure Monitoring ({systolic_bp} mm Hg) – Limit salt intake, exercise regularly.")
 st.write("4. Regular Checkups – Monitor blood sugar, cholesterol, and maintain healthy routines.")
-st.markdown("</div>", unsafe_allow_html=True)
 
+st.markdown("</div>", unsafe_allow_html=True)
 
     elif page_option == "Visit History":
         st.title("📖 Visit History")
