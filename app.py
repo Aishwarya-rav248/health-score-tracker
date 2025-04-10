@@ -40,31 +40,28 @@ with col2:
     st.metric("Risk Level", latest["Risk_Level"])
 
 # --- Health Score Gauge ---
-with col3:
-    st.markdown("### 🧭 Health Score")
+# Donut Chart
+score = health_score
+risk = latest["Risk_Level"].lower()
+color = "#4caf50" if "low" in risk else "#ffa94d" if "medium" in risk else "#ff4d4d"
 
-    health_score = latest["Health_Score"]
-    risk_level = latest["Risk_Level"].lower()
-
-    # Determine gauge color
-    color = "green" if "low" in risk_level else "orange" if "medium" in risk_level else "red"
-
-    fig = go.Figure(go.Indicator(
-        mode="gauge+number",
-        value=health_score,
-        gauge={
-            'axis': {'range': [0, 100], 'tickwidth': 1},
-            'bar': {'color': color},
-            'bgcolor': "white",
-            'steps': [
-                {'range': [0, 60], 'color': '#ff4d4d'},
-                {'range': [60, 80], 'color': '#ffa94d'},
-                {'range': [80, 100], 'color': '#4caf50'}
-            ]
-        }
-    ))
-    fig.update_layout(height=250, margin=dict(t=10, b=10, l=20, r=20))
-    st.plotly_chart(fig, use_container_width=True)
+fig = go.Figure(data=[go.Pie(
+    values=[score, 100 - score],
+    hole=0.65,
+    marker_colors=[color, "#f0f2f6"],
+    textinfo='none'
+)])
+fig.update_layout(
+    showlegend=False,
+    height=260,
+    annotations=[dict(
+        text=f"<b>{score}</b><br>Score",
+        font_size=18,
+        showarrow=False
+    )],
+    margin=dict(t=20, b=20, l=20, r=20)
+)
+st.plotly_chart(fig, use_container_width=True)
 
 # ---------- Trend Line ----------
 st.markdown("### 📈 Health Score Over Time")
