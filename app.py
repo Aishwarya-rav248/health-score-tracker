@@ -155,20 +155,27 @@ with st.container():
 
     st.markdown("</div>", unsafe_allow_html=True)
 
-        # ---------- ROW 3: Preventive Measures ----------
-        st.markdown("<div class='card'><h4>🛡️ Preventive Measures</h4>", unsafe_allow_html=True)
-        bmi = latest.get("BMI", None)
-        heart_rate = latest.get("Heart_Rate", None)
-        systolic_bp = latest.get("Systolic_BP", None)
+        # --- Row 3: Preventive Measures ---
+st.markdown("### 🛡️ Preventive Measures")
+with st.container():
+    st.markdown(f"""
+        <div style='background-color: #f7f7f7; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);'>
+    """, unsafe_allow_html=True)
 
-        if pd.notna(bmi):
-            st.write(f"1. BMI Optimization (BMI: {bmi}) – Focus on balanced diet & exercise.")
-        if pd.notna(heart_rate) and heart_rate > 80:
-            st.write(f"2. Heart Rate Management ({heart_rate} bpm) – Stress reduction techniques.")
-        if pd.notna(systolic_bp) and systolic_bp > 130:
-            st.write(f"3. Blood Pressure Monitoring ({systolic_bp} mm Hg) – Limit salt, regular exercise.")
-        st.write("4. Regular Checkups – Monitor glucose, cholesterol & routine wellness.")
-        st.markdown("</div>", unsafe_allow_html=True)
+    bmi = latest.get("BMI", None)
+    heart_rate = latest.get("Heart_Rate", None)
+    systolic_bp = latest.get("Systolic_BP", None)
+
+    if pd.notna(bmi):
+        st.write(f"1. BMI Optimization (BMI: {bmi}) – Focus on balanced diet & exercise.")
+    if pd.notna(heart_rate) and heart_rate > 80:
+        st.write(f"2. Heart Rate Management ({heart_rate} bpm) – Practice stress reduction techniques.")
+    if pd.notna(systolic_bp) and systolic_bp > 130:
+        st.write(f"3. Blood Pressure Monitoring ({systolic_bp} mm Hg) – Limit salt intake, exercise regularly.")
+    st.write("4. Regular Checkups – Monitor blood sugar, cholesterol, and maintain healthy routines.")
+
+    st.markdown("</div>", unsafe_allow_html=True)
+
 
     elif page_option == "Visit History":
         st.title("📖 Visit History")
