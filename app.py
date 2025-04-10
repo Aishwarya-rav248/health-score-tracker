@@ -96,78 +96,90 @@ def show_dashboard_page(patient_id):
         st.markdown("<div class='title-section'>Overview</div>", unsafe_allow_html=True)
 
         # ---------- ROW 1: Info + Metrics ----------
-        row1_col1, row1_col2 = st.columns(2)
+       st.markdown("<div class='title-section'>Overview</div>", unsafe_allow_html=True)
 
-        with row1_col1:
-            st.markdown(f"""
-                <div class='card'>
-                    <h4>🧍 Patient Info</h4>
-                    <p><strong>Patient ID:</strong> {patient_id}</p>
-                    <p><strong>Height:</strong> {latest.get("Height_cm", "N/A")} cm</p>
-                    <p><strong>Weight:</strong> {latest.get("Weight_kg", "N/A")} kg</p>
-                    <p><strong>Smoking Status:</strong> {latest.get("Smoking_Status", "N/A")}</p>
-                </div>
-            """, unsafe_allow_html=True)
+# ---------- ROW: Info & Metrics Side by Side ----------
+row_col1, row_col2 = st.columns([1, 2])  # Smaller left card, wider right
 
-        with row1_col2:
-            st.markdown(f"""
-                <div class='card'>
-                    <h4>🧾 Health Metrics</h4>
-                </div>
-            """, unsafe_allow_html=True)
-            st.metric("BMI", latest.get("BMI", "N/A"))
-            st.metric("Blood Pressure", f"{latest.get('Systolic_BP', 'N/A')}/{latest.get('Diastolic_BP', 'N/A')}")
-            st.metric("Heart Rate", latest.get("Heart_Rate", "N/A"))
-            st.metric("Risk Level", latest.get("Risk_Level", "N/A"))
+# --- Patient Info Card ---
+with row_col1:
+    st.markdown(f"""
+        <div class='card' style='font-size: 14px;'>
+            <h4 style='font-size:18px;'>🧍 Patient Info</h4>
+            <p><strong>ID:</strong> {patient_id}</p>
+            <p><strong>Height:</strong> {latest.get("Height_cm", "N/A")} cm</p>
+            <p><strong>Weight:</strong> {latest.get("Weight_kg", "N/A")} kg</p>
+            <p><strong>Smoking:</strong> {latest.get("Smoking_Status", "N/A")}</p>
+        </div>
+    """, unsafe_allow_html=True)
 
-        # ---------- ROW 2: Gauge Chart ----------
-        st.markdown("<div class='card'><h4>📊 Health Score</h4>", unsafe_allow_html=True)
+# --- Health Metrics & Gauge ---
+with row_col2:
+    st.markdown(f"""
+        <div class='card'>
+            <h4 style='font-size:18px;'>🧾 Health Metrics</h4>
+        </div>
+    """, unsafe_allow_html=True)
 
-        # Determine gauge color based on score or risk
-        if health_score >= 85 or "low" in risk_level:
-            gauge_color = "green"
-        elif health_score >= 75 or "medium" in risk_level:
-            gauge_color = "orange"
-        else:
-            gauge_color = "red"
+    metrics_col1, metrics_col2 = st.columns(2)
+    with metrics_col1:
+        st.metric("BMI", latest.get("BMI", "N/A"))
+        st.metric("Heart Rate", latest.get("Heart_Rate", "N/A"))
+    with metrics_col2:
+        st.metric("Blood Pressure", f"{latest.get('Systolic_BP', 'N/A')}/{latest.get('Diastolic_BP', 'N/A')}")
+        st.metric("Risk Level", latest.get("Risk_Level", "N/A"))
 
-        fig = go.Figure(go.Indicator(
-            mode="gauge+number",
-            value=health_score,
-            title={'text': "Health Score", 'font': {'size': 20}},
-            gauge={
-                'axis': {'range': [0, 100]},
-                'bar': {'color': gauge_color},
-                'bgcolor': "white",
-                'steps': [
-                    {'range': [0, 100], 'color': gauge_color}
-                ]
-            }
-        ))
+    # --- Inline Gauge Below Metrics ---
+    st.markdown(f"""
+        <div class='card' style="margin-top: -10px;">
+            <h4 style='font-size:18px;'>📊 Health Score</h4>
+    """, unsafe_allow_html=True)
 
-        st.plotly_chart(fig, use_container_width=True)
-        st.markdown("</div>", unsafe_allow_html=True)
+    if health_score >= 85 or "low" in risk_level:
+        gauge_color = "green"
+    elif health_score >= 75 or "medium" in risk_level:
+        gauge_color = "orange"
+    else:
+        gauge_color = "red"
 
-        # ---------- ROW 3: Preventive Measures ----------
-        with st.container():
-            st.markdown(f"""
-                <div class='card'>
-                    <h4>🛡️ Preventive Measures</h4>
-            """, unsafe_allow_html=True)
+    fig = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=health_score,
+        title={'text': "", 'font': {'size': 18}},
+        gauge={
+            'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "gray"},
+            'bar': {'color': gauge_color},
+            'bgcolor': "white",
+            'steps': [
+                {'range': [0, 100], 'color': gauge_color}
+            ]
+        }
+    ))
+    fig.update_layout(margin=dict(l=10, r=10, t=10, b=10), height=200)
+    st.plotly_chart(fig, use_container_width=True)
 
-            bmi = latest.get("BMI", None)
-            heart_rate = latest.get("Heart_Rate", None)
-            systolic_bp = latest.get("Systolic_BP", None)
+    st.markdown("</div>", unsafe_allow_html=True)
 
-            if pd.notna(bmi):
-                st.write(f"1. BMI Optimization (BMI: {bmi}) – Focus on balanced diet & exercise.")
-            if pd.notna(heart_rate) and heart_rate > 80:
-                st.write(f"2. Heart Rate Management ({heart_rate} bpm) – Practice stress reduction techniques.")
-            if pd.notna(systolic_bp) and systolic_bp > 130:
-                st.write(f"3. Blood Pressure Monitoring ({systolic_bp} mm Hg) – Limit salt intake, regular workouts.")
-            st.write("4. Regular Checkups – Monitor sugar, cholesterol, maintain healthy habits.")
+# ---------- Preventive Measures ----------
+with st.container():
+    st.markdown(f"""
+        <div class='card'>
+            <h4 style='font-size:18px;'>🛡️ Preventive Measures</h4>
+    """, unsafe_allow_html=True)
 
-            st.markdown("</div>", unsafe_allow_html=True)
+    bmi = latest.get("BMI", None)
+    heart_rate = latest.get("Heart_Rate", None)
+    systolic_bp = latest.get("Systolic_BP", None)
+
+    if pd.notna(bmi):
+        st.write(f"1. Optimize BMI (BMI: {bmi}) – Balanced diet & exercise.")
+    if pd.notna(heart_rate) and heart_rate > 80:
+        st.write(f"2. Manage Heart Rate ({heart_rate} bpm) – Reduce stress.")
+    if pd.notna(systolic_bp) and systolic_bp > 130:
+        st.write(f"3. Control BP ({systolic_bp} mm Hg) – Low salt, stay active.")
+    st.write("4. Regular checkups for sugar, cholesterol & lifestyle.")
+
+    st.markdown("</div>", unsafe_allow_html=True)
 
     elif page_option == "Visit History":
         st.title("📖 Visit History")
