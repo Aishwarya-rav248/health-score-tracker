@@ -120,37 +120,40 @@ def show_dashboard_page(patient_id):
             st.metric("Risk Level", latest.get("Risk_Level", "N/A"))
 
         # ---------- ROW 2: Health Score Gauge ----------
-        st.markdown("<div class='card'><h4>📊 Health Score</h4>", unsafe_allow_html=True)
-        if pd.notna(health_score):
-            fig = go.Figure(go.Indicator(
-                mode="gauge+number+delta",
-                value=health_score,
-                title={'text': "Health Score", 'font': {'size': 24}},
-                gauge={
-                    'axis': {'range': [0, 100]},
-                    'bar': {'color': "#4CAF50"},
-                    'bgcolor': "white",
-                    'steps': [
-                        {'range': [0, 50], 'color': '#ff4d4d'},
-                        {'range': [50, 75], 'color': '#ffa94d'},
-                        {'range': [75, 100], 'color': '#4caf50'}
-                    ],
-                    'threshold': {
-                        'line': {'color': "black", 'width': 4},
-                        'thickness': 0.75,
-                        'value': health_score
-                    }
-                }
-            ))
-            st.plotly_chart(fig, use_container_width=True)
+        # --- Row 2: Health Score Gauge ---
+st.markdown("### 📊 Health Score")
+with st.container():
+    st.markdown(f"""
+        <div style='background-color: #f7f7f7; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);'>
+    """, unsafe_allow_html=True)
 
-            if health_score >= 85:
-                st.success("Excellent")
-            elif health_score >= 75:
-                st.warning("Needs Improvement")
-            else:
-                st.error("Unhealthy: Immediate Action Required!")
-        st.markdown("</div>", unsafe_allow_html=True)
+    # Determine gauge color based on score or risk
+    risk_level = str(latest.get("Risk_Level", "")).lower()
+    if health_score >= 85 or "low" in risk_level:
+        gauge_color = "green"
+    elif health_score >= 75 or "medium" in risk_level:
+        gauge_color = "orange"
+    else:
+        gauge_color = "red"
+
+    # Plot single-color gauge
+    fig = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=health_score,
+        title={'text': "Health Score", 'font': {'size': 20}},
+        gauge={
+            'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "gray"},
+            'bar': {'color': gauge_color},
+            'bgcolor': "white",
+            'steps': [
+                {'range': [0, 100], 'color': gauge_color}
+            ]
+        }
+    ))
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    st.markdown("</div>", unsafe_allow_html=True)
 
         # ---------- ROW 3: Preventive Measures ----------
         st.markdown("<div class='card'><h4>🛡️ Preventive Measures</h4>", unsafe_allow_html=True)
