@@ -101,61 +101,95 @@ def show_dashboard_page(patient_id):
     )
 
     if page_option == "Overview":
-        st.markdown('<div class="title-section">Patient Details</div>', unsafe_allow_html=True)
-        col1, col2 = st.columns(2)
+     st.markdown('<div class="title-section">Overview</div>', unsafe_allow_html=True)
 
-        with col1:
-            st.markdown(f"""
-                <div class='card'>
-                    <h3>Patient:</h3>
-                    <p>{latest.get('patient', 'N/A')}</p>
-                    <p><strong>Smoking Status:</strong> {latest.get('Smoking_Status', 'N/A')}</p>
-                    <p><strong>Health Score:</strong> {health_score} / 100</p>
-                </div>
-            """, unsafe_allow_html=True)
+# ------------ Row 1: Patient Info & Metrics ------------------
+row1_col1, row1_col2 = st.columns(2)
 
-        with col2:
-            st.metric("BMI", latest.get("BMI", "N/A"))
-            st.metric("Blood Pressure", f"{latest.get('Systolic_BP', 'N/A')}/{latest.get('Diastolic_BP', 'N/A')}")
-            st.metric("Heart Rate", latest.get("Heart_Rate", "N/A"))
-            st.metric("Risk Level", latest.get("Risk_Level", "N/A"))
+# Card 1: Patient Info
+with row1_col1:
+    st.markdown(f"""
+        <div class='card'>
+            <h3>Patient Info</h3>
+            <p><strong>Patient ID:</strong> {patient_id}</p>
+            <p><strong>Height:</strong> {latest.get("Height_cm", "N/A")} cm</p>
+            <p><strong>Weight:</strong> {latest.get("Weight_kg", "N/A")} kg</p>
+            <p><strong>Smoking Status:</strong> {latest.get("Smoking_Status", "N/A")}</p>
+        </div>
+    """, unsafe_allow_html=True)
 
-        if pd.notna(health_score):
-            st.subheader("Health Score")
-            fig = go.Figure(go.Indicator(
-                mode="gauge+number+delta",
-                value=health_score,
-                title={'text': "Health Score", 'font': {'size': 24}},
-                gauge={
-                    'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "darkgray"},
-                    'bar': {'color': "#4CAF50"},
-                    'bgcolor': "white",
-                    'steps': [
-                        {'range': [0, 50], 'color': '#ff4d4d'},
-                        {'range': [50, 75], 'color': '#ffa94d'},
-                        {'range': [75, 100], 'color': '#4caf50'}
-                    ],
-                    'threshold': {
-                        'line': {'color': "black", 'width': 4},
-                        'thickness': 0.75,
-                        'value': health_score
-                    }
+# Card 2: Metrics
+with row1_col2:
+    st.markdown(f"""
+        <div class='card'>
+            <h3>Health Metrics</h3>
+        </div>
+    """, unsafe_allow_html=True)
+    st.metric("BMI", latest.get("BMI", "N/A"))
+    st.metric("Blood Pressure", f"{latest.get('Systolic_BP', 'N/A')}/{latest.get('Diastolic_BP', 'N/A')}")
+    st.metric("Heart Rate", latest.get("Heart_Rate", "N/A"))
+    st.metric("Risk Level", latest.get("Risk_Level", "N/A"))
+
+# ------------ Row 2: Health Score Gauge ------------------
+st.markdown("<br>", unsafe_allow_html=True)
+with st.container():
+    st.markdown(f"""
+        <div class='card'>
+            <h3>Health Score</h3>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    if pd.notna(health_score):
+        fig = go.Figure(go.Indicator(
+            mode="gauge+number+delta",
+            value=health_score,
+            title={'text': "Health Score", 'font': {'size': 24}},
+            gauge={
+                'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "darkgray"},
+                'bar': {'color': "#4CAF50"},
+                'bgcolor': "white",
+                'steps': [
+                    {'range': [0, 50], 'color': '#ff4d4d'},
+                    {'range': [50, 75], 'color': '#ffa94d'},
+                    {'range': [75, 100], 'color': '#4caf50'}
+                ],
+                'threshold': {
+                    'line': {'color': "black", 'width': 4},
+                    'thickness': 0.75,
+                    'value': health_score
                 }
-            ))
-            st.plotly_chart(fig, use_container_width=True)
+            }
+        ))
+        st.plotly_chart(fig, use_container_width=True)
 
-            st.subheader("Preventive Measures")
-            bmi = latest.get("BMI", None)
-            heart_rate = latest.get("Heart_Rate", None)
-            systolic_bp = latest.get("Systolic_BP", None)
+        # Health Score interpretation
+        if health_score >= 85:
+            st.success("Excellent")
+        elif health_score >= 75:
+            st.warning("Needs Improvement")
+        else:
+            st.error("Unhealthy: Immediate Action Required!")
 
-            if pd.notna(bmi):
-                st.write(f"1. BMI Optimization (BMI: {bmi}) – Focus on balanced diet & exercise.")
-            if pd.notna(heart_rate) and heart_rate > 80:
-                st.write(f"2. Heart Rate Management ({heart_rate} bpm) – Practice stress reduction techniques.")
-            if pd.notna(systolic_bp) and systolic_bp > 130:
-                st.write(f"3. Blood Pressure Monitoring ({systolic_bp} mm Hg) – Limit salt intake, exercise regularly.")
-            st.write("4. Regular Checkups – Monitor blood sugar, cholesterol, and maintain healthy routines.")
+# ------------ Row 3: Preventive Measures ------------------
+st.markdown("<br>", unsafe_allow_html=True)
+st.markdown(f"""
+    <div class='card'>
+        <h3>Preventive Measures</h3>
+""", unsafe_allow_html=True)
+
+bmi = latest.get("BMI", None)
+heart_rate = latest.get("Heart_Rate", None)
+systolic_bp = latest.get("Systolic_BP", None)
+
+if pd.notna(bmi):
+    st.write(f"1. BMI Optimization (BMI: {bmi}) – Focus on balanced diet & exercise.")
+if pd.notna(heart_rate) and heart_rate > 80:
+    st.write(f"2. Heart Rate Management ({heart_rate} bpm) – Practice stress reduction techniques.")
+if pd.notna(systolic_bp) and systolic_bp > 130:
+    st.write(f"3. Blood Pressure Monitoring ({systolic_bp} mm Hg) – Limit salt intake, exercise regularly.")
+st.write("4. Regular Checkups – Monitor blood sugar, cholesterol, and maintain healthy routines.")
+st.markdown("</div>", unsafe_allow_html=True)
+
 
     elif page_option == "Visit History":
         st.title("📖 Visit History")
