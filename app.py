@@ -3,7 +3,10 @@ import pandas as pd
 import os
 import plotly.graph_objects as go
 
-# ------------------ Custom CSS ------------------
+# ---------- CONFIG -----------
+st.set_page_config(page_title="HealthPredict Dashboard", layout="wide")
+
+# ---------- CUSTOM CSS -----------
 st.markdown("""
     <style>
         html, body, .main {
@@ -11,13 +14,13 @@ st.markdown("""
         }
         [data-testid="stSidebar"] {
             background-color: #ffffff;
-            padding-top: 3rem;
+            padding-top: 2rem;
             border-right: 1px solid #e1e4ed;
         }
         .title-section {
             font-size: 28px;
             font-weight: bold;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
             color: #1e1e1e;
         }
         .card {
@@ -27,26 +30,19 @@ st.markdown("""
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             margin-bottom: 1.5rem;
         }
-        .card h3 {
+        .card h4 {
             font-size: 20px;
-            margin-bottom: 0.6rem;
-            color: #444;
+            color: #333;
+            margin-bottom: 1rem;
         }
         .card p {
-            margin: 0.3rem 0;
-            font-weight: 500;
-            color: #222;
-        }
-        .stMetric {
-            background-color: #ffffff !important;
-            padding: 1rem !important;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            margin-bottom: 10px;
+            margin: 0.5rem 0;
+            color: #444;
         }
     </style>
 """, unsafe_allow_html=True)
-# ------------------ LOGIN PAGE ------------------
+
+# ---------- LOGIN PAGE -----------
 def show_login_page():
     st.title("Welcome to HealthPredict")
     st.subheader("Login with Patient ID")
@@ -69,11 +65,11 @@ def show_login_page():
         if patient_id in df["patient"].astype(str).values:
             st.session_state.logged_in = True
             st.session_state.patient_id = patient_id
-            st.session_state.rerun = True
+            st.experimental_rerun()
         else:
             st.error("Invalid Patient ID")
 
-# ------------------ DASHBOARD PAGE ------------------
+# ---------- DASHBOARD PAGE -----------
 def show_dashboard_page(patient_id):
     data_path = "selected_20_final_patients.csv"
     if not os.path.isfile(data_path):
@@ -93,102 +89,83 @@ def show_dashboard_page(patient_id):
     st.sidebar.title("HealthPredict")
     st.sidebar.success(f"Patient ID: {patient_id}")
 
-    page_option = st.sidebar.radio(
-        "Select Section",
-        ["Overview", "Visit History"],
-        key="dashboard_section"
-    )
+    page_option = st.sidebar.radio("Select Section", ["Overview", "Visit History"])
 
     if page_option == "Overview":
-     # Page Title
-st.markdown("<h2 style='text-align: center; margin-bottom: 2rem;'>Overview</h2>", unsafe_allow_html=True)
+        st.markdown("<div class='title-section'>Overview</div>", unsafe_allow_html=True)
 
-# --- Row 1: Patient Info and Health Metrics ---
-row1_col1, row1_col2 = st.columns(2)
+        # ---------- ROW 1: Info + Metrics ----------
+        row1_col1, row1_col2 = st.columns(2)
 
-# --- Card 1: Patient Info ---
-with row1_col1:
-    st.markdown(f"""
-        <div style='background-color: #f7f7f7; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);'>
-            <h4 style='color: #333;'>🧍 Patient Info</h4>
-            <p><strong>Patient ID:</strong> {patient_id}</p>
-            <p><strong>Height:</strong> {latest.get("Height_cm", "N/A")} cm</p>
-            <p><strong>Weight:</strong> {latest.get("Weight_kg", "N/A")} kg</p>
-            <p><strong>Smoking Status:</strong> {latest.get("Smoking_Status", "N/A")}</p>
-        </div>
-    """, unsafe_allow_html=True)
+        with row1_col1:
+            st.markdown(f"""
+                <div class='card'>
+                    <h4>🧍 Patient Info</h4>
+                    <p><strong>Patient ID:</strong> {patient_id}</p>
+                    <p><strong>Height:</strong> {latest.get("Height_cm", "N/A")} cm</p>
+                    <p><strong>Weight:</strong> {latest.get("Weight_kg", "N/A")} kg</p>
+                    <p><strong>Smoking Status:</strong> {latest.get("Smoking_Status", "N/A")}</p>
+                </div>
+            """, unsafe_allow_html=True)
 
-# --- Card 2: Health Metrics ---
-with row1_col2:
-    st.markdown(f"""
-        <div style='background-color: #f7f7f7; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);'>
-            <h4 style='color: #333;'>🧾 Health Metrics</h4>
-        </div>
-    """, unsafe_allow_html=True)
-    st.metric("BMI", latest.get("BMI", "N/A"))
-    st.metric("Blood Pressure", f"{latest.get('Systolic_BP', 'N/A')}/{latest.get('Diastolic_BP', 'N/A')}")
-    st.metric("Heart Rate", latest.get("Heart_Rate", "N/A"))
-    st.metric("Risk Level", latest.get("Risk_Level", "N/A"))
+        with row1_col2:
+            st.markdown(f"""
+                <div class='card'>
+                    <h4>🧾 Health Metrics</h4>
+                </div>
+            """, unsafe_allow_html=True)
+            st.metric("BMI", latest.get("BMI", "N/A"))
+            st.metric("Blood Pressure", f"{latest.get('Systolic_BP', 'N/A')}/{latest.get('Diastolic_BP', 'N/A')}")
+            st.metric("Heart Rate", latest.get("Heart_Rate", "N/A"))
+            st.metric("Risk Level", latest.get("Risk_Level", "N/A"))
 
-# --- Row 2: Health Score Gauge ---
-st.markdown("### 📊 Health Score")
-with st.container():
-    st.markdown(f"""
-        <div style='background-color: #f7f7f7; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);'>
-    """, unsafe_allow_html=True)
-
-    if pd.notna(health_score):
-        fig = go.Figure(go.Indicator(
-            mode="gauge+number+delta",
-            value=health_score,
-            title={'text': "Health Score", 'font': {'size': 24}},
-            gauge={
-                'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "darkgray"},
-                'bar': {'color': "#4CAF50"},
-                'bgcolor': "white",
-                'steps': [
-                    {'range': [0, 50], 'color': '#ff4d4d'},
-                    {'range': [50, 75], 'color': '#ffa94d'},
-                    {'range': [75, 100], 'color': '#4caf50'}
-                ],
-                'threshold': {
-                    'line': {'color': "black", 'width': 4},
-                    'thickness': 0.75,
-                    'value': health_score
+        # ---------- ROW 2: Health Score Gauge ----------
+        st.markdown("<div class='card'><h4>📊 Health Score</h4>", unsafe_allow_html=True)
+        if pd.notna(health_score):
+            fig = go.Figure(go.Indicator(
+                mode="gauge+number+delta",
+                value=health_score,
+                title={'text': "Health Score", 'font': {'size': 24}},
+                gauge={
+                    'axis': {'range': [0, 100]},
+                    'bar': {'color': "#4CAF50"},
+                    'bgcolor': "white",
+                    'steps': [
+                        {'range': [0, 50], 'color': '#ff4d4d'},
+                        {'range': [50, 75], 'color': '#ffa94d'},
+                        {'range': [75, 100], 'color': '#4caf50'}
+                    ],
+                    'threshold': {
+                        'line': {'color': "black", 'width': 4},
+                        'thickness': 0.75,
+                        'value': health_score
+                    }
                 }
-            }
-        ))
-        st.plotly_chart(fig, use_container_width=True)
+            ))
+            st.plotly_chart(fig, use_container_width=True)
 
-        # Health Score interpretation
-        if health_score >= 85:
-            st.success("Excellent")
-        elif health_score >= 75:
-            st.warning("Needs Improvement")
-        else:
-            st.error("Unhealthy: Immediate Action Required!")
+            if health_score >= 85:
+                st.success("Excellent")
+            elif health_score >= 75:
+                st.warning("Needs Improvement")
+            else:
+                st.error("Unhealthy: Immediate Action Required!")
+        st.markdown("</div>", unsafe_allow_html=True)
 
-    st.markdown("</div>", unsafe_allow_html=True)
+        # ---------- ROW 3: Preventive Measures ----------
+        st.markdown("<div class='card'><h4>🛡️ Preventive Measures</h4>", unsafe_allow_html=True)
+        bmi = latest.get("BMI", None)
+        heart_rate = latest.get("Heart_Rate", None)
+        systolic_bp = latest.get("Systolic_BP", None)
 
-# --- Row 3: Preventive Measures ---
-st.markdown("### 🛡️ Preventive Measures")
-st.markdown(f"""
-    <div style='background-color: #f7f7f7; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);'>
-""", unsafe_allow_html=True)
-
-bmi = latest.get("BMI", None)
-heart_rate = latest.get("Heart_Rate", None)
-systolic_bp = latest.get("Systolic_BP", None)
-
-if pd.notna(bmi):
-    st.write(f"1. BMI Optimization (BMI: {bmi}) – Focus on balanced diet & exercise.")
-if pd.notna(heart_rate) and heart_rate > 80:
-    st.write(f"2. Heart Rate Management ({heart_rate} bpm) – Practice stress reduction techniques.")
-if pd.notna(systolic_bp) and systolic_bp > 130:
-    st.write(f"3. Blood Pressure Monitoring ({systolic_bp} mm Hg) – Limit salt intake, exercise regularly.")
-st.write("4. Regular Checkups – Monitor blood sugar, cholesterol, and maintain healthy routines.")
-
-st.markdown("</div>", unsafe_allow_html=True)
+        if pd.notna(bmi):
+            st.write(f"1. BMI Optimization (BMI: {bmi}) – Focus on balanced diet & exercise.")
+        if pd.notna(heart_rate) and heart_rate > 80:
+            st.write(f"2. Heart Rate Management ({heart_rate} bpm) – Stress reduction techniques.")
+        if pd.notna(systolic_bp) and systolic_bp > 130:
+            st.write(f"3. Blood Pressure Monitoring ({systolic_bp} mm Hg) – Limit salt, regular exercise.")
+        st.write("4. Regular Checkups – Monitor glucose, cholesterol & routine wellness.")
+        st.markdown("</div>", unsafe_allow_html=True)
 
     elif page_option == "Visit History":
         st.title("📖 Visit History")
@@ -203,7 +180,6 @@ st.markdown("</div>", unsafe_allow_html=True)
 
         st.markdown("---")
         st.subheader("🕒 Health History Timeline")
-
         for _, row in patient_df.iterrows():
             with st.expander(f"Visit on {row['date']}"):
                 st.write(f"**Height:** {row.get('Height_cm', 'N/A')} cm")
@@ -228,10 +204,9 @@ st.markdown("</div>", unsafe_allow_html=True)
     if st.button("🔙 Back to Login"):
         st.session_state.logged_in = False
         st.session_state.patient_id = ""
-        st.session_state.page = 'login'
         st.rerun()
 
-# ------------------ MAIN ------------------
+# ---------- MAIN ----------
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
     st.session_state.patient_id = ""
