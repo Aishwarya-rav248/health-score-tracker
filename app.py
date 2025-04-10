@@ -1,71 +1,79 @@
-
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 
 st.set_page_config(page_title="Health Dashboard", layout="wide")
 
+# Load data
 @st.cache_data
 def load_data():
     return pd.read_csv("selected_20_final_patients.csv")
 
 df = load_data()
 
-st.sidebar.title("🏥 Health Dashboard")
-patient_ids = df["patient"].unique()
-selected_patient = st.sidebar.selectbox("Select Patient", patient_ids)
+# Sidebar
+st.sidebar.title("🩺 Health Dashboard")
+selected_patient = st.sidebar.selectbox("Choose Patient", df["patient"].unique())
 
+# Filter data for selected patient
 patient_df = df[df["patient"] == selected_patient].sort_values("date")
 latest = patient_df.iloc[-1]
 
-st.markdown("<h2 style='text-align:center;'>Patient Overview</h2>", unsafe_allow_html=True)
-col1, col2 = st.columns(2)
+# ---------- Top Section ----------
+col1, col2, col3 = st.columns([1.5, 1.5, 2])
 
+# --- Patient Info Card ---
 with col1:
-    st.markdown(f"""
-        <div style='background-color:#fff;padding:1rem 1.5rem;border-radius:10px;
-                    box-shadow:0 2px 4px rgba(0,0,0,0.1);'>
-            <h4>🧍 Patient Info</h4>
-            <p><strong>ID:</strong> {selected_patient}</p>
-            <p><strong>Date:</strong> {latest["date"]}</p>
-            <p><strong>Height:</strong> {latest["Height_cm"]} cm</p>
-            <p><strong>Weight:</strong> {latest["Weight_kg"]} kg</p>
-            <p><strong>Smoking:</strong> {latest["Smoking_Status"]}</p>
-        </div>
-    """, unsafe_allow_html=True)
+    st.markdown("### 👤 Patient Info")
+    st.markdown(f"**Patient ID:** {selected_patient}")
+    st.markdown(f"**Date:** {latest['date']}")
+    st.markdown(f"**Height:** {latest['Height_cm']} cm")
+    st.markdown(f"**Weight:** {latest['Weight_kg']} kg")
+    st.markdown(f"**Smoking Status:** {latest['Smoking_Status']}")
 
+# --- Health Metrics Card ---
 with col2:
-    st.markdown(f"""
-        <div style='background-color:#fff;padding:1rem 1.5rem;border-radius:10px;
-                    box-shadow:0 2px 4px rgba(0,0,0,0.1);'>
-            <h4>📊 Health Metrics</h4>
-        </div>
-    """, unsafe_allow_html=True)
+    st.markdown("### 📊 Health Metrics")
+    st.metric("BMI", latest["BMI"])
+    st.metric("Blood Pressure", f"{latest['Systolic_BP']}/{latest['Diastolic_BP']}")
+    st.metric("Heart Rate", latest["Heart_Rate"])
+    st.metric("Risk Level", latest["Risk_Level"])
 
-    m1, m2 = st.columns(2)
-    m1.metric("BMI", latest["BMI"])
-    m2.metric("Blood Pressure", f"{latest["Systolic_BP"]}/{latest["Diastolic_BP"]}")
-    m1.metric("Heart Rate", latest["Heart_Rate"])
-    m2.metric("Risk Level", latest["Risk_Level"])
+# --- Health Score Gauge ---
+with col3:
+    st.markdown("### 🧭 Health Score")
 
-    score = latest["Health_Score"]
-    color = "green" if score >= 85 else "orange" if score >= 70 else "red"
+    health_score = latest["Health_Score"]
+    risk_level = latest["Risk_Level"].lower()
+
+    # Determine gauge color
+    color = "green" if "low" in risk_level else "orange" if "medium" in risk_level else "red"
+
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
-        value=score,
-        gauge={'axis': {'range': [0, 100]},
-               'bar': {'color': color},
-               'steps': [{'range': [0, 100], 'color': color}]},
+        value=health_score,
+        gauge={
+            'axis': {'range': [0, 100], 'tickwidth': 1},
+            'bar': {'color': color},
+            'bgcolor': "white",
+            'steps': [
+                {'range': [0, 60], 'color': '#ff4d4d'},
+                {'range': [60, 80], 'color': '#ffa94d'},
+                {'range': [80, 100], 'color': '#4caf50'}
+            ]
+        }
     ))
-    fig.update_layout(height=220, margin=dict(l=10, r=10, t=10, b=10))
+    fig.update_layout(height=250, margin=dict(t=10, b=10, l=20, r=20))
     st.plotly_chart(fig, use_container_width=True)
 
-st.markdown("<h4>📈 Health Score Over Time</h4>", unsafe_allow_html=True)
+# ---------- Trend Line ----------
+st.markdown("### 📈 Health Score Over Time")
 trend_df = patient_df[["date", "Health_Score"]].copy()
 trend_df["date"] = pd.to_datetime(trend_df["date"])
 st.line_chart(trend_df.set_index("date"))
 
-st.markdown("<h4>🕒 Visit History</h4>", unsafe_allow_html=True)
+# ---------- Visit History Timeline ----------
+st.markdown("### 📅 Visit History")
 for _, row in patient_df.iterrows():
     with st.expander(f"Visit on {row['date']}"):
         st.write(f"**Height:** {row['Height_cm']} cm")
