@@ -3,8 +3,7 @@ import pandas as pd
 import os
 import plotly.graph_objects as go
 
-# ------------------ Custom CSS ------------------
-st.markdown("""
+# ------------------ Custom CSS ------------------st.markdown("""
     <style>
         html, body, .main {
             background-color: #f4f7ff;
@@ -17,8 +16,8 @@ st.markdown("""
         .title-section {
             font-size: 28px;
             font-weight: bold;
-            color: #1e1e1e;
             margin-bottom: 1.5rem;
+            color: #1e1e1e;
         }
         .card {
             padding: 1.5rem;
@@ -46,7 +45,6 @@ st.markdown("""
         }
     </style>
 """, unsafe_allow_html=True)
-
 # ------------------ LOGIN PAGE ------------------
 def show_login_page():
     st.title("Welcome to HealthPredict")
