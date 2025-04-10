@@ -3,7 +3,8 @@ import pandas as pd
 import os
 import plotly.graph_objects as go
 
-# ------------------ Custom CSS ------------------st.markdown("""
+# ------------------ Custom CSS ------------------
+st.markdown("""
     <style>
         html, body, .main {
             background-color: #f4f7ff;
