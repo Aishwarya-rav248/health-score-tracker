@@ -15,7 +15,7 @@ df = load_data()
 st.sidebar.title("🩺 Health Dashboard")
 selected_patient = st.sidebar.selectbox("Choose Patient", df["patient"].unique())
 
-# Filter data for selected patient
+# Filter data
 patient_df = df[df["patient"] == selected_patient].sort_values("date")
 latest = patient_df.iloc[-1]
 
@@ -39,37 +39,40 @@ with col2:
     st.metric("Heart Rate", latest["Heart_Rate"])
     st.metric("Risk Level", latest["Risk_Level"])
 
-# --- Health Score Gauge ---
+# --- Health Score Donut Chart ---
 with col3:
-health_score = latest["Health_Score"]
-risk = latest["Risk_Level"].lower()
-color = "#4caf50" if "low" in risk else "#ffa94d" if "medium" in risk else "#ff4d4d"
+    st.markdown("### 🧭 Health Score")
 
-fig = go.Figure(data=[go.Pie(
-    values=[health_score, 100 - health_score],
-    hole=0.65,
-    marker_colors=[color, "#f0f2f6"],
-    textinfo='none'
-)])
-fig.update_layout(
-    showlegend=False,
-    height=260,
-    annotations=[dict(
-        text=f"<b>{health_score}</b><br>Score",
-        font_size=18,
-        showarrow=False
-    )],
-    margin=dict(t=20, b=20, l=20, r=20)
-)
-st.plotly_chart(fig, use_container_width=True)
+    health_score = latest["Health_Score"]
+    risk_level = latest["Risk_Level"].lower()
 
-# ---------- Trend Line ----------
+    color = "#4caf50" if "low" in risk_level else "#ffa94d" if "medium" in risk_level else "#ff4d4d"
+
+    fig = go.Figure(data=[go.Pie(
+        values=[health_score, 100 - health_score],
+        hole=0.65,
+        marker_colors=[color, "#f0f2f6"],
+        textinfo='none'
+    )])
+    fig.update_layout(
+        showlegend=False,
+        height=260,
+        annotations=[dict(
+            text=f"<b>{health_score}</b><br>Score",
+            font_size=18,
+            showarrow=False
+        )],
+        margin=dict(t=20, b=20, l=20, r=20)
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
+# ---------- Health Score Trend ----------
 st.markdown("### 📈 Health Score Over Time")
 trend_df = patient_df[["date", "Health_Score"]].copy()
 trend_df["date"] = pd.to_datetime(trend_df["date"])
 st.line_chart(trend_df.set_index("date"))
 
-# ---------- Visit History Timeline ----------
+# ---------- Visit History ----------
 st.markdown("### 📅 Visit History")
 for _, row in patient_df.iterrows():
     with st.expander(f"Visit on {row['date']}"):
