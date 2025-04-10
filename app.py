@@ -40,13 +40,13 @@ with col2:
     st.metric("Risk Level", latest["Risk_Level"])
 
 # --- Health Score Gauge ---
-# Donut Chart
-score = health_score
+with col3:
+health_score = latest["Health_Score"]
 risk = latest["Risk_Level"].lower()
 color = "#4caf50" if "low" in risk else "#ffa94d" if "medium" in risk else "#ff4d4d"
 
 fig = go.Figure(data=[go.Pie(
-    values=[score, 100 - score],
+    values=[health_score, 100 - health_score],
     hole=0.65,
     marker_colors=[color, "#f0f2f6"],
     textinfo='none'
@@ -55,7 +55,7 @@ fig.update_layout(
     showlegend=False,
     height=260,
     annotations=[dict(
-        text=f"<b>{score}</b><br>Score",
+        text=f"<b>{health_score}</b><br>Score",
         font_size=18,
         showarrow=False
     )],
