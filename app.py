@@ -121,7 +121,14 @@ def show_dashboard(patient_id):
 
     # ---------------- RISK PREDICTOR TAB ----------------
     with tab3:
-        st.markdown("### 🧠 Heart Disease Risk Predictor")
+    st.markdown("### 🧠 Heart Disease Risk Predictor")
+    
+    import os
+    import traceback
+
+    if not os.path.exists("heart_disease_model.pkl"):
+        st.error("❌ Model file not found. Please make sure 'heart_disease_model.pkl' is present in the same folder.")
+    else:
         try:
             model = joblib.load("heart_disease_model.pkl")
 
@@ -153,9 +160,8 @@ def show_dashboard(patient_id):
                 st.write("- Maintain current lifestyle")
                 st.write("- Keep regular health checkups")
 
-        import traceback
         except Exception as e:
-            st.error("Model loading failed:")
+            st.error("Model loading failed.")
             st.code(traceback.format_exc())
 
 
