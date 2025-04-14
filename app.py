@@ -2,6 +2,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
+import joblib
 
 st.set_page_config(page_title="Health Dashboard", layout="wide")
 
@@ -36,11 +37,10 @@ def show_dashboard(patient_id):
         return
 
     latest = patient_df.iloc[-1]
-    tab1, tab2 = st.tabs(["🩺 Overview", "📅 Visit History"])
+    tab1, tab2, tab3 = st.tabs(["🩺 Overview", "📅 Visit History", "🧠 Risk Predictor"])
 
     with tab1:
         st.markdown("### 👤 Patient Overview")
-
         col1, col2, col3 = st.columns([1.5, 1.5, 2])
 
         with col1:
@@ -118,13 +118,53 @@ def show_dashboard(patient_id):
                 if str(row["Smoking_Status"]).lower().startswith("current"):
                     st.write("• Smoking – Join cessation programs for long-term benefits.")
 
+    with tab3:
+        st.markdown("### 🧠 Heart Disease Risk Predictor")
+        try:
+            model = joblib.load("heart_disease_model.pkl")
+
+            bmi = latest.get("BMI", None)
+            sys = latest.get("Systolic_BP", None)
+            dia = latest.get("Diastolic_BP", None)
+            hr = latest.get("Heart_Rate", None)
+            smoke_raw = latest.get("Smoking_Status", "").lower()
+
+            smoke_map = {
+                "never smoker": 0,
+                "former smoker": 1,
+                "occasional smoker": 2,
+                "current every day smoker": 3
+            }
+            smoke = smoke_map.get(smoke_raw, 0)
+
+            if None in [bmi, sys, dia, hr]:
+                st.warning("❗ Cannot predict risk due to missing values in health metrics.")
+            else:
+                X_input = [[bmi, sys, dia, hr, smoke]]
+                prediction = model.predict(X_input)[0]
+                confidence = model.predict_proba(X_input)[0][prediction] * 100
+
+                st.subheader("🩺 Prediction Result:")
+                if prediction == 1:
+                    st.error(f"⚠️ High Risk of Heart Disease ({confidence:.1f}% confidence)")
+                    st.write("**Recommendations:**")
+                    st.write("- Schedule a full cardiac checkup")
+                    st.write("- Monitor blood pressure and cholesterol")
+                    st.write("- Adopt heart-healthy lifestyle immediately")
+                else:
+                    st.success(f"✅ Low Risk of Heart Disease ({confidence:.1f}% confidence)")
+                    st.write("**Recommendations:**")
+                    st.write("- Maintain current lifestyle")
+                    st.write("- Keep regular health checkups")
+        except Exception as e:
+            st.error(f"Model error: {str(e)}")
+
     st.markdown("---")
     if st.button("🔙 Back to Login"):
         st.session_state.logged_in = False
         st.session_state.patient_id = ""
         st.rerun()
 
-# MAIN
 if st.session_state.logged_in:
     show_dashboard(st.session_state.patient_id)
 else:
