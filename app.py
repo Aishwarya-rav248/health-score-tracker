@@ -38,6 +38,7 @@ def show_dashboard(patient_id):
     latest = patient_df.iloc[-1]
     tab1, tab2, tab3 = st.tabs(["🩺 Overview", "📅 Visit History", "🧠 Risk Predictor"])
 
+    # ---------------- OVERVIEW TAB ----------------
     with tab1:
         st.markdown("### 👤 Patient Overview")
         col1, col2, col3 = st.columns([1.5, 1.5, 2])
@@ -92,6 +93,7 @@ def show_dashboard(patient_id):
         if latest["Smoking_Status"].lower().startswith("current"):
             st.write("• Smoking Cessation – Enroll in quit smoking programs.")
 
+    # ---------------- VISIT HISTORY TAB ----------------
     with tab2:
         st.markdown("### 📅 Visit History")
         st.line_chart(patient_df.set_index(pd.to_datetime(patient_df["date"]))["Health_Score"])
@@ -117,44 +119,40 @@ def show_dashboard(patient_id):
                 if str(row["Smoking_Status"]).lower().startswith("current"):
                     st.write("• Smoking – Join cessation programs for long-term benefits.")
 
+    # ---------------- RISK PREDICTOR TAB ----------------
     with tab3:
         st.markdown("### 🧠 Heart Disease Risk Predictor")
         try:
             model = joblib.load("heart_disease_model.pkl")
 
-            bmi = latest.get("BMI", None)
-            sys = latest.get("Systolic_BP", None)
-            dia = latest.get("Diastolic_BP", None)
-            hr = latest.get("Heart_Rate", None)
-            smoke_raw = latest.get("Smoking_Status", "").lower()
+            input_df = pd.DataFrame([{
+                "Height_cm": latest.get("Height_cm"),
+                "BMI": latest.get("BMI"),
+                "Weight_kg": latest.get("Weight_kg"),
+                "Diastolic_BP": latest.get("Diastolic_BP"),
+                "Heart_Rate": latest.get("Heart_Rate"),
+                "Systolic_BP": latest.get("Systolic_BP"),
+                "Diabetes": latest.get("Diabetes"),
+                "Hyperlipidemia": latest.get("Hyperlipidemia"),
+                "Smoking_Status": latest.get("Smoking_Status")
+            }])
 
-            smoke_map = {
-                "never smoker": 0,
-                "former smoker": 1,
-                "occasional smoker": 2,
-                "current every day smoker": 3
-            }
-            smoke = smoke_map.get(smoke_raw, 0)
+            prediction = model.predict(input_df)[0]
+            confidence = model.predict_proba(input_df)[0][prediction] * 100
 
-            if None in [bmi, sys, dia, hr]:
-                st.warning("❗ Cannot predict risk due to missing values in health metrics.")
+            st.subheader("🩺 Prediction Result:")
+            if prediction == 1:
+                st.error(f"⚠️ High Risk of Heart Disease ({confidence:.1f}% confidence)")
+                st.write("**Recommendations:**")
+                st.write("- Schedule a full cardiac checkup")
+                st.write("- Monitor blood pressure and cholesterol")
+                st.write("- Adopt heart-healthy lifestyle immediately")
             else:
-                X_input = [[bmi, sys, dia, hr, smoke]]
-                prediction = model.predict(X_input)[0]
-                confidence = model.predict_proba(X_input)[0][prediction] * 100
+                st.success(f"✅ Low Risk of Heart Disease ({confidence:.1f}% confidence)")
+                st.write("**Recommendations:**")
+                st.write("- Maintain current lifestyle")
+                st.write("- Keep regular health checkups")
 
-                st.subheader("🩺 Prediction Result:")
-                if prediction == 1:
-                    st.error(f"⚠️ High Risk of Heart Disease ({confidence:.1f}% confidence)")
-                    st.write("**Recommendations:**")
-                    st.write("- Schedule a full cardiac checkup")
-                    st.write("- Monitor blood pressure and cholesterol")
-                    st.write("- Adopt heart-healthy lifestyle immediately")
-                else:
-                    st.success(f"✅ Low Risk of Heart Disease ({confidence:.1f}% confidence)")
-                    st.write("**Recommendations:**")
-                    st.write("- Maintain current lifestyle")
-                    st.write("- Keep regular health checkups")
         except Exception as e:
             st.error(f"Model error: {str(e)}")
 
