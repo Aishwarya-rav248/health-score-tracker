@@ -1,7 +1,7 @@
+
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
-import joblib
 
 st.set_page_config(page_title="Health Dashboard", layout="wide")
 
@@ -36,11 +36,11 @@ def show_dashboard(patient_id):
         return
 
     latest = patient_df.iloc[-1]
-    tab1, tab2, tab3 = st.tabs(["🩺 Overview", "📅 Visit History", "🧠 Risk Predictor"])
+    tab1, tab2 = st.tabs(["🩺 Overview", "📅 Visit History"])
 
-    # ---------------- OVERVIEW TAB ----------------
     with tab1:
         st.markdown("### 👤 Patient Overview")
+
         col1, col2, col3 = st.columns([1.5, 1.5, 2])
 
         with col1:
@@ -93,7 +93,6 @@ def show_dashboard(patient_id):
         if latest["Smoking_Status"].lower().startswith("current"):
             st.write("• Smoking Cessation – Enroll in quit smoking programs.")
 
-    # ---------------- VISIT HISTORY TAB ----------------
     with tab2:
         st.markdown("### 📅 Visit History")
         st.line_chart(patient_df.set_index(pd.to_datetime(patient_df["date"]))["Health_Score"])
@@ -119,58 +118,13 @@ def show_dashboard(patient_id):
                 if str(row["Smoking_Status"]).lower().startswith("current"):
                     st.write("• Smoking – Join cessation programs for long-term benefits.")
 
-    # ---------------- RISK PREDICTOR TAB ----------------
-    with tab3:
-    st.markdown("### 🧠 Heart Disease Risk Predictor")
-    
-    import os
-    import traceback
-
-    if not os.path.exists("heart_disease_model.pkl"):
-        st.error("❌ Model file not found. Please make sure 'heart_disease_model.pkl' is present in the same folder.")
-    else:
-        try:
-            model = joblib.load("heart_disease_model.pkl")
-
-            input_df = pd.DataFrame([{
-                "Height_cm": latest.get("Height_cm"),
-                "BMI": latest.get("BMI"),
-                "Weight_kg": latest.get("Weight_kg"),
-                "Diastolic_BP": latest.get("Diastolic_BP"),
-                "Heart_Rate": latest.get("Heart_Rate"),
-                "Systolic_BP": latest.get("Systolic_BP"),
-                "Diabetes": latest.get("Diabetes"),
-                "Hyperlipidemia": latest.get("Hyperlipidemia"),
-                "Smoking_Status": latest.get("Smoking_Status")
-            }])
-
-            prediction = model.predict(input_df)[0]
-            confidence = model.predict_proba(input_df)[0][prediction] * 100
-
-            st.subheader("🩺 Prediction Result:")
-            if prediction == 1:
-                st.error(f"⚠️ High Risk of Heart Disease ({confidence:.1f}% confidence)")
-                st.write("**Recommendations:**")
-                st.write("- Schedule a full cardiac checkup")
-                st.write("- Monitor blood pressure and cholesterol")
-                st.write("- Adopt heart-healthy lifestyle immediately")
-            else:
-                st.success(f"✅ Low Risk of Heart Disease ({confidence:.1f}% confidence)")
-                st.write("**Recommendations:**")
-                st.write("- Maintain current lifestyle")
-                st.write("- Keep regular health checkups")
-
-        except Exception as e:
-            st.error("Model loading failed.")
-            st.code(traceback.format_exc())
-
-
     st.markdown("---")
     if st.button("🔙 Back to Login"):
         st.session_state.logged_in = False
         st.session_state.patient_id = ""
         st.rerun()
 
+# MAIN
 if st.session_state.logged_in:
     show_dashboard(st.session_state.patient_id)
 else:
