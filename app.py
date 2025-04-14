@@ -153,8 +153,11 @@ def show_dashboard(patient_id):
                 st.write("- Maintain current lifestyle")
                 st.write("- Keep regular health checkups")
 
+        import traceback
         except Exception as e:
-            st.error(f"Model error: {str(e)}")
+            st.error("Model loading failed:")
+            st.code(traceback.format_exc())
+
 
     st.markdown("---")
     if st.button("🔙 Back to Login"):
